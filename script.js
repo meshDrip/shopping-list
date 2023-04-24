@@ -1,39 +1,75 @@
-const addItemBtn = document.querySelector(".btn");
-let itemInputValue = document.getElementById("item-input");
+const itemForm = document.getElementById("item-form");
+const itemInput = document.getElementById("item-input");
+const itemList = document.getElementById("item-list");
+const clearBtn = document.getElementById("clear");
+const itemFilter = document.getElementById("filter");
 
-window.addEventListener("click", (e) => {
-  e.preventDefault();
-  if (e.target === addItemBtn) {
-    if (itemInputValue.value !== "") {
-      addInputToList(itemInputValue.value);
+function createButton(classes) {
+  const button = document.createElement("button");
+  const icon = createIcon("fa-solid fa-xmark");
+  button.className = classes;
+  button.appendChild(icon);
+  return button;
+}
 
-      itemInputValue.value = "";
-    }
+function createIcon(classes) {
+  const icon = document.createElement("i");
+  icon.className = classes;
+  return icon;
+}
+
+function removeItem(e) {
+  if (e.target.parentElement.classList.contains("remove-item")) {
+    e.target.parentElement.parentElement.remove();
   }
+
+  checkUIState();
+}
+
+function clearItems() {
+  // itemList.replaceChildren();
+  while (itemList.firstChild) {
+    itemList.removeChild(itemList.firstChild);
+  }
+
+  checkUIState();
+}
+
+function checkUIState() {
+  const items = document.querySelectorAll("li");
+  if (items.length === 0) {
+    clearBtn.style = "visibility:hidden";
+    itemFilter.style = "visibility:hidden";
+  } else {
+    clearBtn.style = "visibility:block";
+    itemFilter.style = "visibility:block";
+  }
+}
+
+itemForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const newItem = itemInput.value;
+  if (newItem !== "") {
+    const newTodoItem = document.createElement("li");
+
+    newTodoItem.appendChild(document.createTextNode(newItem));
+    newTodoItem.appendChild(createButton("remove-item btn-link text-red"));
+
+    const itemList = document
+      .getElementById("item-list")
+      .appendChild(newTodoItem);
+
+    itemInput.value = "";
+  } else {
+    alert("You haven't added an item!");
+    return;
+  }
+
+  checkUIState();
 });
+itemList.addEventListener("click", removeItem);
+clearBtn.addEventListener("click", clearItems);
+filter
 
-function addInputToList(input) {
-  const newItem = createNewListItem(input);
-  const itemList = document.getElementById("item-list").appendChild(newItem);
-}
-
-function createNewListItem(input) {
-  const newItem = document.createElement("li");
-  const deleteBtn = createNewDeleteBtn();
-
-  newItem.appendChild(document.createTextNode(input));
-  newItem.appendChild(deleteBtn);
-  return newItem;
-}
-
-function createNewDeleteBtn() {
-  const deleteBtn = document.createElement("button");
-  const btn = document.createElement("i");
-
-  deleteBtn.className = "remove-item btn-link text-red";
-  btn.className = "fa-solid fa-xmark";
-
-  deleteBtn.appendChild(btn);
-
-  return deleteBtn;
-}
+checkUIState();
